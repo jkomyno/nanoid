@@ -1,28 +1,31 @@
-package main
+package nanoid
 
 import (
 	"crypto/rand"
-	"math"
 	"fmt"
+	"math"
 )
 
+// RandomType is the type that the custom random generator has to be
 type RandomType func(int) ([]byte, error)
 
-type defaultsType struct {
+// DefaultsType is the type of the default configuration for Nanoid
+type DefaultsType struct {
 	Alphabet string
-	Size int
+	Size     int
 	MaskSize int
 }
 
-func getDefaults() *defaultsType {
-	return &defaultsType{
+// GetDefaults returns the default configuration for Nanoid
+func GetDefaults() *DefaultsType {
+	return &DefaultsType{
 		Alphabet: "_~0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", // len=64
-		Size: 22,
+		Size:     22,
 		MaskSize: 5,
 	}
 }
 
-var defaults = getDefaults()
+var defaults = GetDefaults()
 
 func initMasks(params ...int) []uint {
 	var size int
@@ -32,10 +35,10 @@ func initMasks(params ...int) []uint {
 		size = params[0]
 	}
 	/*
-	https://github.com/ai/nanoid/blob/d6ad3412147fa4c2b0d404841ade245a00c2009f/format.js#L1
-	As per 'var masks = [15, 31, 63, 127, 255]'
+		https://github.com/ai/nanoid/blob/d6ad3412147fa4c2b0d404841ade245a00c2009f/format.js#L1
+		As per 'var masks = [15, 31, 63, 127, 255]'
 
-	The next block initializes an array of size elements, from 2^4-1 to 2^(3 + size)-1
+		The next block initializes an array of size elements, from 2^4-1 to 2^(3 + size)-1
 	*/
 	masks := make([]uint, size)
 	for i := 0; i < size; i++ {
@@ -54,7 +57,7 @@ var mask = masks.find(function (i) {
 func getMask(alphabet string, masks []uint) int {
 	for i := 0; i < len(masks); i++ {
 		curr := int(masks[i])
-		if curr >= len(alphabet) - 1 {
+		if curr >= len(alphabet)-1 {
 			return curr
 		}
 	}
@@ -74,13 +77,13 @@ func Random(size int) ([]byte, error) {
 func Format(random RandomType, alphabet string, size int) (string, error) {
 	masks := initMasks(size)
 	mask := getMask(alphabet, masks)
-	ceilArg := 1.6 * float64(mask * size) / float64(len(alphabet))
+	ceilArg := 1.6 * float64(mask*size) / float64(len(alphabet))
 	step := int(math.Ceil(ceilArg))
 
 	id := make([]byte, size)
-	for j := 0;; {
+	for j := 0; ; {
 		bytes, err := random(step)
-		if (err != nil) {
+		if err != nil {
 			return "", err
 		}
 
@@ -100,13 +103,16 @@ func Format(random RandomType, alphabet string, size int) (string, error) {
 
 // Generate is a low-level function to change alphabet and ID size.
 func Generate(alphabet string, size int) (string, error) {
-	return Format(Random, alphabet, size);
+	return Format(Random, alphabet, size)
 }
 
 // Nanoid generates secure URL-friendly unique ID.
-func Nanoid(size int) (string, error) {
-	if size == 0 {
+func Nanoid(param ...int) (string, error) {
+	var size int
+	if len(param) == 0 {
 		size = defaults.Size
+	} else {
+		size = param[0]
 	}
 	bytes, err := Random(size)
 	if err != nil {
@@ -115,19 +121,7 @@ func Nanoid(size int) (string, error) {
 
 	id := make([]byte, size)
 	for i := 0; i < size; i++ {
-		id[i] = defaults.Alphabet[bytes[i] & 63]
+		id[i] = defaults.Alphabet[bytes[i]&63]
 	}
 	return string(id[:size]), nil
-}
-
-func main() {
-	str, _ := Nanoid(5)
-	fmt.Println("str %v", str);
-	/*
-	str, err := Generate(defaults.Alphabet, defaults.Size)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("str %v", str);
-	*/
 }
