@@ -24,16 +24,33 @@ $ go get github.com/jkomyno/nanoid
 $ go test -v -bench=.
 ```
 
+You should be able to see a log similar to the following one:
+```
+=== RUN   TestGeneratesURLFriendlyIDs
+--- PASS: TestGeneratesURLFriendlyIDs (0.00s)
+=== RUN   TestHasNoCollisions
+--- PASS: TestHasNoCollisions (0.21s)
+=== RUN   TestFlatDistribution
+--- PASS: TestFlatDistribution (0.33s)
+goos: linux
+goarch: amd64
+pkg: github.com/jkomyno/nanoid
+BenchmarkNanoid-4        1000000              1704 ns/op
+PASS
+ok      github.com/jkomyno/nanoid       2.265s
+```
+
 ## Usage
+**This packages tries to offer an API as close as possible to the original JS module.**
 
 ### Normal
 
-The main module uses URL-friendly symbols (`A-Za-z0-9_~`) and returns an ID
+The Nanoid() function uses URL-friendly symbols (`A-Za-z0-9_~`) and returns an ID
 with 22 characters (to have the same collisions probability as UUID v4).
 Please note that it also returns an error, which (hopefully) will be `nil`.
 
 ```go
-import "nanoid"
+import "github.com/jkomyno/nanoid"
 
 id, err := nanoid.Nanoid() //=> "Uakgb_J5m9g~0JDMbcJqLJ"
 ```
@@ -45,15 +62,19 @@ If you want to reduce ID length (and increase collisions probability),
 you can pass length as argument:
 
 ```go
+import "github.com/jkomyno/nanoid"
+
 id, err := nanoid.Nanoid(10) //=> "IRFa~VaY2b"
 ```
 
 ### Custom Alphabet or Length
 
 If you want to change the ID alphabet or the length
-you can use low-level `Generate` module.
+you can use low-level `Generate` function.
 
 ```go
+import "github.com/jkomyno/nanoid"
+
 id, err := nanoid.Generate("1234567890abcdef", 10) //=> "4f90d13a42"
 ```
 
@@ -61,12 +82,13 @@ Alphabet must contain less than 256 symbols.
 
 ### Custom Random Bytes Generator
 
-You can replace the default safe random generator using the `Format` module.
+You can replace the default safe random generator using the `Format` function.
 
 ```go
 import (
-    "nanoid"
     "crypto/rand"
+
+    "github.com/jkomyno/nanoid"
 )
 
 func random(size int) ([]byte, error) {
@@ -75,7 +97,7 @@ func random(size int) ([]byte, error) {
 	return randomBytes, err
 }
 
-id, err := Format(random, "abcdef", 10) //=> "fbaefaadeb"
+id, err := nanoid.Format(random, "abcdef", 10) //=> "fbaefaadeb"
 ```
 
 Note that `random` function must follow this spec:
@@ -87,8 +109,10 @@ If you want to use the same URL-friendly symbols with `format`,
 or take a look at the other defaults value, you can use `GetDefaults`.
 
 ```go
+import "github.com/jkomyno/nanoid"
+
 var defaults *nanoid.DefaultsType
-defaults = nanoid.getDefaults()
+defaults = nanoid.GetDefaults()
 /*
 	&DefaultsType{
 		Alphabet: "_~0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
