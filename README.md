@@ -1,7 +1,7 @@
 # nanoid
 Golang port of [ai/nanoid](https://github.com/ai/nanoid) (originally written in JavaScript).
 
-[![](https://travis-ci.org/jkomyno/nanoid.svg?branch=master)](https://travis-ci.org/jkomyno/nanoid)
+[![Build Status](https://travis-ci.org/jkomyno/nanoid.svg?branch=master)](https://travis-ci.org/jkomyno/nanoid) [![GoDoc](https://godoc.org/github.com/jkomyno/nanoid?status.svg)](https://godoc.org/github.com/jkomyno/nanoid) [![Go Report Card](https://goreportcard.com/badge/github.com/jkomyno/nanoid)](https://goreportcard.com/report/github.com/jkomyno/nanoid)
 
 # Description
 A tiny, secure URL-friendly unique string ID generator for Golang.
