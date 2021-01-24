@@ -2,7 +2,6 @@ package nanoid
 
 import (
 	"crypto/rand"
-	"fmt"
 	"math"
 )
 
